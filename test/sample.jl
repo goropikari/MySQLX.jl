@@ -127,3 +127,22 @@ row2 = MySQLX.Resultset.Row()
 ProtoBuf.readproto(PipeBuffer(payload), row2)
 println("row2_id = $(zigzag_decode(row2.field[1][]))")
 println("row2_name = $(String(copy(row2.field[2])))")
+
+# RESULTSET_FETCH_DONE = 14
+typ, payload = read_packet(sock)
+
+# Notice
+typ, payload = read_packet(sock)
+
+# SQL_STMT_EXECUTE_OK = 17
+typ, payload = read_packet(sock)
+
+# C -> S: SESS_CLOSE = 7
+SESS_CLOSE = 7
+typ = UInt8(SESS_CLOSE)
+write(sock, UInt8[0x01, 0x00, 0x00, 0x00, typ])
+
+# S -> C: OK = 0
+typ, payload = read_packet(sock)
+
+close(sock)
