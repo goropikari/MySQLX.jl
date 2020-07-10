@@ -40,7 +40,7 @@ import "mysqlx_datatypes.proto";
 //
 // .. uml::
 //
-//   client -> server: Prepare
+//   client -> server: _Prepare
 //   alt Success
 //     client <- server: Ok
 //   else Failure
@@ -50,7 +50,7 @@ import "mysqlx_datatypes.proto";
 // :param stmt_id: client side assigned statement id, which is going to identify the result of preparation
 // :param stmt: defines one of following messages to be prepared - Crud.Find, Crud.Insert, Crud.Delete, Crud.Upsert, Sql.StmtExecute
 // :Returns: :protobuf:msg:`Mysqlx.Ok|Mysqlx.Error`
-message Prepare {
+message _Prepare {
   required uint32 stmt_id = 1;
 
   message OneOfMessage {
@@ -97,7 +97,7 @@ message Prepare {
 message Execute {
   required uint32 stmt_id = 1;
 
-  repeated Mysqlx.Datatypes.Any args = 2;
+  repeated Mysqlx.Datatypes._Any args = 2;
   optional bool compact_metadata = 3 [ default = false ];
 
   option (client_message_id) = PREPARE_EXECUTE; // comment_out_if PROTOBUF_LITE

@@ -71,19 +71,19 @@ message Scalar {
 message Object {
   message ObjectField {
     required string key = 1;
-    required Any value = 2;
+    required _Any value = 2;
   }
 
   repeated ObjectField fld = 1;
 }
 
-// a Array
-message Array {
-  repeated Any value = 1;
+// a _Array
+message _Array {
+  repeated _Any value = 1;
 }
 
 // a helper to allow all field types
-message Any {
+message _Any {
   enum Type {
     SCALAR = 1;
     OBJECT = 2;
@@ -94,6 +94,6 @@ message Any {
 
   optional Scalar scalar = 2;
   optional Object obj    = 3;
-  optional Array  array  = 4;
+  optional _Array  array  = 4;
 }
 

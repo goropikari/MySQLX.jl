@@ -33,10 +33,10 @@ option java_package = "com.mysql.cj.x.protobuf";
 
 // a Capability
 //
-// a tuple of a ``name`` and a :protobuf:msg:`Mysqlx.Datatypes::Any`
+// a tuple of a ``name`` and a :protobuf:msg:`Mysqlx.Datatypes::_Any`
 message Capability {
   required string name = 1;
-  required Mysqlx.Datatypes.Any value = 2;
+  required Mysqlx.Datatypes._Any value = 2;
 }
 
 // Capabilities

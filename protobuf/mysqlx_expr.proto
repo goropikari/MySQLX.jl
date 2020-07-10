@@ -25,7 +25,7 @@ syntax = "proto2";
 
 // ifdef PROTOBUF_LITE: option optimize_for = LITE_RUNTIME;
 
-// Expression syntax
+// _Expression syntax
 //
 // expr is the fundamental structure in various places
 // of the SQL language:
@@ -38,12 +38,12 @@ syntax = "proto2";
 // * build an Item-tree in the MySQL Server
 // * generate SQL from it
 // * use as filter condition in CRUD's Find(), Update() and Delete() calls.
-package Mysqlx.Expr;
+package Mysqlx._Expr;
 option java_package = "com.mysql.cj.x.protobuf";
 
 import "mysqlx_datatypes.proto";
 
-// Expressions
+// _Expressions
 //
 // the "root" of the expression tree
 //
@@ -60,7 +60,7 @@ import "mysqlx_datatypes.proto";
 // Field `position` (which must be present for such an expression) gives 0-based
 // position of the parameter in the parameter list.
 //
-message Expr {
+message __Expr {
   enum Type {
     IDENT          = 1;
     LITERAL        = 2;
@@ -81,7 +81,7 @@ message Expr {
   optional Operator     operator = 6;
   optional uint32       position = 7;
   optional Object       object = 8;
-  optional Array        array = 9;
+  optional _Array        array = 9;
 }
 
 // identifier: name, schame.name
@@ -133,7 +133,7 @@ message DocumentPathItem {
 //    doubleAsterisk = "**"
 //
 message ColumnIdentifier {
-  repeated Mysqlx.Expr.DocumentPathItem document_path = 1;
+  repeated Mysqlx._Expr.DocumentPathItem document_path = 1;
   optional string name = 2;
   optional string table_name = 3;
   optional string schema_name = 4;
@@ -145,7 +145,7 @@ message ColumnIdentifier {
 //   function_call: `identifier` "(" [ `expr` ["," `expr` ]* ] ")"
 message FunctionCall {
   required Identifier name = 1;
-  repeated Expr param = 2;
+  repeated __Expr param = 2;
 }
 
 // operator: ``<<(a, b)``
@@ -243,20 +243,20 @@ message FunctionCall {
 //   operator: `name` "(" [ `expr` ["," `expr` ]* ] ")"
 message Operator {
   required string name = 1;
-  repeated Expr param = 2;
+  repeated __Expr param = 2;
 }
 
 // an object (with expression values)
 message Object {
   message ObjectField {
     required string key = 1;
-    required Expr value = 2;
+    required __Expr value = 2;
   }
 
   repeated ObjectField fld = 1;
 }
 
-// a Array of expressions
-message Array {
-  repeated Expr value = 1;
+// a _Array of expressions
+message _Array {
+  repeated __Expr value = 1;
 }

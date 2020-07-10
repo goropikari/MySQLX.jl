@@ -38,7 +38,7 @@ import "mysqlx_datatypes.proto";
 message Column {
   optional string name = 1;
   optional string alias = 2;
-  repeated Mysqlx.Expr.DocumentPathItem document_path = 3;
+  repeated Mysqlx._Expr.DocumentPathItem document_path = 3;
 }
 
 // a projection
@@ -48,7 +48,7 @@ message Column {
 // :param alias: optional alias. Required for DOCUMENTs (clients may use 
 //              the source string as default)
 message Projection {
-    required Mysqlx.Expr.Expr source = 1;
+    required Mysqlx._Expr.__Expr source = 1;
     optional string alias = 2;
 }
 
@@ -77,14 +77,14 @@ message Limit {
 //
 // LimitExpr in comparison to Limit, is able to specify that row_count and
 // offset are placeholders.
-// This message support expressions of following types Expr/literal/UINT,
-// Expr/PLACEHOLDER.
+// This message support expressions of following types _Expr/literal/UINT,
+// _Expr/PLACEHOLDER.
 //
 // :param row_count: maximum rows to filter
 // :param offset: maximum rows to skip before applying the row_count
 message LimitExpr {
-  required Mysqlx.Expr.Expr row_count = 1;
-  optional Mysqlx.Expr.Expr offset = 2;
+  required Mysqlx._Expr.__Expr row_count = 1;
+  optional Mysqlx._Expr.__Expr offset = 2;
 }
 
 // sort order
@@ -94,7 +94,7 @@ message Order {
     DESC = 2;
   };
 
-  required Mysqlx.Expr.Expr expr = 1;
+  required Mysqlx._Expr.__Expr expr = 1;
   optional Direction direction = 2 [ default=ASC ];
 }
 
@@ -117,9 +117,9 @@ message UpdateOperation {
     ARRAY_APPEND = 7;   // append the value on the array at the identified path
     MERGE_PATCH = 8;    // merge JSON object value with the provided patch expression
   }
-  required Mysqlx.Expr.ColumnIdentifier source = 1;
+  required Mysqlx._Expr.ColumnIdentifier source = 1;
   required UpdateType operation = 2;
-  optional Mysqlx.Expr.Expr value = 3;
+  optional Mysqlx._Expr.__Expr value = 3;
 }
 
 // Find Documents/Rows in a Collection/Table
@@ -157,11 +157,11 @@ message Find {
 
   optional DataModel data_model = 3;
   repeated Projection projection = 4;
-  optional Mysqlx.Expr.Expr criteria = 5;
+  optional Mysqlx._Expr.__Expr criteria = 5;
   repeated Mysqlx.Datatypes.Scalar args = 11;
   repeated Order order = 7;
-  repeated Mysqlx.Expr.Expr grouping = 8;
-  optional Mysqlx.Expr.Expr grouping_criteria = 9;
+  repeated Mysqlx._Expr.__Expr grouping = 8;
+  optional Mysqlx._Expr.__Expr grouping_criteria = 9;
   optional RowLock locking = 12;
   optional RowLockOptions locking_options = 13;
   optional Limit limit = 6;
@@ -186,7 +186,7 @@ message Insert {
   repeated Column projection = 3;
 
   message TypedRow {
-    repeated Mysqlx.Expr.Expr field = 1;
+    repeated Mysqlx._Expr.__Expr field = 1;
   };
   repeated TypedRow row = 4;
   repeated Mysqlx.Datatypes.Scalar args = 5;
@@ -210,7 +210,7 @@ message Update {
   required Collection collection = 2;
 
   optional DataModel data_model = 3;
-  optional Mysqlx.Expr.Expr criteria = 4;
+  optional Mysqlx._Expr.__Expr criteria = 4;
   repeated Mysqlx.Datatypes.Scalar args = 8;
   repeated Order order = 6;
 
@@ -236,7 +236,7 @@ message Delete {
   required Collection collection = 1;
 
   optional DataModel data_model = 2;
-  optional Mysqlx.Expr.Expr criteria = 3;
+  optional Mysqlx._Expr.__Expr criteria = 3;
   repeated Mysqlx.Datatypes.Scalar args = 6;
   repeated Order order = 5;
 
