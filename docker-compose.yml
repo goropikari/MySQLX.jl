@@ -1,0 +1,12 @@
+version: '3'
+services:
+  ubuntu:
+    build: .
+    environment:
+      - MYSQL_HOST=db
+    tty: true
+  db:
+    image: mysql:8.0.20
+    environment:
+      - MYSQL_ROOT_PASSWORD=test
+    command: mysqld --default-authentication-plugin=mysql_native_password
