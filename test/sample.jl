@@ -4,13 +4,6 @@ using SHA: SHA
 using MySQLX: MySQLX
 
 function read_packet(sock)
-function read_packet(sock)
-    len_little_endian = read(sock, 4)
-    len = reinterpret(Int32, len_little_endian)[] - 1
-    typ = read(sock, 1)
-    payload = read(sock, len)
-    return typ, payload
-end
     len_little_endian = read(sock, 4)
     len = reinterpret(Int32, len_little_endian)[] - 1
     typ = read(sock, 1)
@@ -54,7 +47,6 @@ ctos(sock, SESS_AUTHENTICATE_START, payload)
 typ, payload = read_packet(sock)
 auth_conti = MySQLX.Session.AuthenticateContinue()
 ProtoBuf.readproto(PipeBuffer(payload), auth_conti)
-
 
 # C -> S: AuthenticateContinue
 challenge = auth_conti.auth_data
