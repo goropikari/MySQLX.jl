@@ -2,6 +2,44 @@
 
 This is a toy implementation to study [MySQL X protocol](https://dev.mysql.com/doc/dev/mysql-server/latest/mysqlx_protocol.html).
 
+
+```julia
+(@v1.4) pkg> add https://github.com/goropikari/MySQLX.jl
+
+julia> using MySQLX
+
+julia> host = "127.0.0.1"
+"127.0.0.1"
+
+julia> user = "root"
+"root"
+
+julia> password = "test"
+"test"
+
+julia> port = 33060
+33060
+
+julia> conn = MySQLX.connect(host, user, password, port=port)
+MySQLX.Connection(Sockets.TCPSocket(RawFD(0x00000014) paused, 0 bytes waiting))
+
+julia> MySQLX.execute(conn, "SELECT * FROM foo.bar")
+type: 1
+name: id
+schema: foo
+table: bar
+type: 7
+name: name
+schema: foo
+table: bar
+id 1
+name dog
+id 256
+name cat
+id 1000
+name hamster
+```
+
 # Local
 
 MySQL server is launched with docker.
