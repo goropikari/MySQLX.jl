@@ -8,8 +8,7 @@ MySQL server is launched with docker.
 ```
 $ docker run --rm -e MYSQL_ROOT_PASSWORD=test -p 33060:33060 -p 3306:3306 -d mysql:8.0.20 mysqld --default-authentication-plugin=mysql_native_password
 $ mysql -h db -uroot -ptest < test/ex.sql
-$ julia --project=. -e 'using Pkg; Pkg.instantiate()'
-$ julia --project=. test/sample.jl
+$ julia --project=. -e 'using Pkg; Pkg.instantiate(); Pkg.test()'
 ```
 
 # Inside container
