@@ -9,7 +9,7 @@ using Test
     MySQLX.execute(conn, "DROP DATABASE foo")
     MySQLX.execute(conn, "CREATE DATABASE foo")
     MySQLX.execute(conn, "CREATE TABLE foo.bar (id int, name varchar(10))")
-    MySQLX.execute(conn, "INSERT INTO foo.bar VALUES (1, 'dog'), (2, 'cat'), (10, 'hamster');")
+    MySQLX.execute(conn, "INSERT INTO foo.bar VALUES (1, 'dog'), (256, 'cat'), (1000, 'hamster');")
     MySQLX.execute(conn, "select * from foo.bar")
     close(conn)
 end

@@ -48,8 +48,12 @@ function _client_to_server(sock::Sockets.TCPSocket, typ::Integer, payload::Vecto
     write(sock, vcat(len, typ_uint8, payload))
 end
 
-function _zigzag_decode(i)
-    return xor((i >>> 1), -(i & 1))
+function _parse_field_value(type, value)
+    if type == ColumnMetaDataType[:SINT]
+        return ProtoBuf.read_svarint(PipeBuffer(value), Int64)
+    elseif type == ColumnMetaDataType[:BYTES]
+        return String(value)
+    end
 end
 
 mutable struct Connection
@@ -57,7 +61,12 @@ mutable struct Connection
 end
 
 
-function connect(sock::Sockets.TCPSocket, host::String, user::String, password::String; db::String = "", port::Integer = 33060)
+function connect(sock::Sockets.TCPSocket,
+                 host::String,
+                 user::String,
+                 password::String,
+                 db::String,
+                 port::Integer)
     # C -> S: SESS_AUTHENTICATE_START
     auth = Session.AuthenticateStart(mech_name = "MYSQL41")
     payload = _serialize_to_string(auth)
@@ -86,7 +95,7 @@ function connect(sock::Sockets.TCPSocket, host::String, user::String, password::
     typ = UInt8(ClientMessagesType[:SESS_AUTHENTICATE_CONTINUE])
     _client_to_server(sock, typ, payload)
 
-    # S -> C: SESS_AUTHENTICATE_OK: 4
+    # S -> C: SESS_AUTHENTICATE_OK
     typ, payload = _read_packet(sock)
     if typ == ServerMessagesType[:SESS_AUTHENTICATE_OK]
         # auth_ok = Session.AuthenticateOk()
@@ -96,11 +105,16 @@ function connect(sock::Sockets.TCPSocket, host::String, user::String, password::
         error()
     end
 end
-connect(host::String, user::String, password::String; db::String="", port::Integer=33060) =
-    connect(Sockets.connect(host, port), host, user, password, db=db, port=port)
+function connect(host::String,
+                 user::String,
+                 password::String
+                ;db::String="",
+                 port::Integer=33060)
+    connect(Sockets.connect(host, port), host, user, password, db, port)
+end
 
 function execute(conn::Connection, sql)
-    # C -> S: SQL_STMT_EXECUTE: 12
+    # C -> S: SQL_STMT_EXECUTE
     stmt_execute = Sql.StmtExecute()
     stmt_execute.stmt = UInt8.(transcode(UInt8, sql))
     stmt_execute.compact_metadata = false
@@ -122,8 +136,8 @@ function _parse_resultset(conn::Connection)
         error(err.msg)
     end
 
-    # S -> C: RESULTSET_COLUMN_META_DATA: 12
-    col_names = String[]
+    # S -> C: RESULTSET_COLUMN_META_DATA
+    cols = Resultset.ColumnMetaData[]
     while typ == ServerMessagesType[:RESULTSET_COLUMN_META_DATA]
         resultset_id = Resultset.ColumnMetaData()
         ProtoBuf.readproto(PipeBuffer(payload), resultset_id)
@@ -131,24 +145,27 @@ function _parse_resultset(conn::Connection)
         println("name: $(String(copy(resultset_id.name)))")
         println("schema: $(String(copy(resultset_id.schema)))")
         println("table: $(String(copy(resultset_id.table)))")
-        push!(col_names, String(copy(resultset_id.name)))
+        # push!(col_names, String(copy(resultset_id.name)))
+        push!(cols, resultset_id)
         typ, payload = _read_packet(conn.sock)
     end
 
-    # RESULTSET_ROW = 13
+    # RESULTSET_ROW
     while typ == ServerMessagesType[:RESULTSET_ROW]
         row = Resultset.Row()
         ProtoBuf.readproto(PipeBuffer(payload), row)
-        for (col, field) in zip(col_names, row.field)
-            println("$(col) $(field)")
+        for (col, field) in zip(cols, row.field)
+            col_name = String(copy(col.name))
+            value = _parse_field_value(col._type, field)
+            println("$(col_name) $(value)")
         end
         typ, payload = _read_packet(conn.sock)
     end
 
-    # RESULTSET_FETCH_DONE = 14
+    # RESULTSET_FETCH_DONE
     @assert typ == ServerMessagesType[:RESULTSET_FETCH_DONE]
 
-    # SQL_STMT_EXECUTE_OK = 17
+    # SQL_STMT_EXECUTE_OK
     typ, payload = _read_packet(conn.sock)
     @assert typ == ServerMessagesType[:SQL_STMT_EXECUTE_OK]
 
@@ -156,19 +173,17 @@ function _parse_resultset(conn::Connection)
 end
 
 function Base.close(conn::Connection)
-    # SESS_CLOSE = 7
+    # SESS_CLOSE
     typ = UInt8(ClientMessagesType[:SESS_CLOSE])
     _client_to_server(conn.sock, typ, UInt8[])
 
     typ, payload = _read_packet(conn.sock)
-    if typ == ServerMessagesType[:OK] # OK
+    if typ == ServerMessagesType[:OK]
         nothing
     else
-        println(typ)
-        error()
+        error(String(payload))
     end
     close(conn.sock)
 end
-
 
 end #module
