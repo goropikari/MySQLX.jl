@@ -106,6 +106,13 @@ function _parse_resultset(conn::Connection)
     # S -> C: RESULTSET_COLUMN_META_DATA = 12
     col_names = String[]
     typ, payload = _read_packet(conn.sock)
+    if typ == 17 # SQL_STMT_EXECUTE_OK: UPDATE, DELETE, INSERT, etc...
+        return nothing
+    else typ == 1 # ERROR
+        err = MySQLX.Mysqlx.Error()
+        ProtoBuf.readproto(PipeBuffer(payload), err)
+        error(err.msg)
+    end
     while typ == 12
         resultset_id = MySQLX.Resultset.ColumnMetaData()
         ProtoBuf.readproto(PipeBuffer(payload), resultset_id)
